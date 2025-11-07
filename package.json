@@ -1,0 +1,31 @@
+{
+  "name": "real-estate-site-starter",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "prisma:seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.2.1",
+    "bcryptjs": "2.4.3",
+    "clsx": "2.1.1",
+    "next": "^15.5.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "@types/react": "19.2.2",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.47",
+    "prisma": "6.2.1",
+    "tailwindcss": "3.4.14",
+    "tsx": "^4.20.6",
+    "typescript": "5.6.3"
+  }
+}

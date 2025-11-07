@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String?  @unique
+  image         String?
+  passwordHash  String?
+  role          Role     @default(EDITOR)
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? 
+  access_token      String? 
+  expires_at        Int?    
+  token_type        String? 
+  scope             String? 
+  id_token          String? 
+  session_state     String? 
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String?
+  content     String
+  ogImageUrl  String?
+  published   Boolean  @default(false)
+  publishedAt DateTime?
+  authorId    String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  title     String
+  bio       String?
+  headshot  String?
+  order     Int       @default(0)
+  socials   Json?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  type      String   // "valuation" | "search" | "contact"
+  name      String?
+  email     String?
+  phone     String?
+  message   String?
+  source    String?
+  createdAt DateTime @default(now())
+}
+
+// Property model for future IDX integration
+model Property {
+  id              String   @id @default(cuid())
+  mls             String?  @unique // MLS number
+  address         String
+  city            String
+  state           String   @default("FL")
+  zipCode         String
+  price           Int      // Price in cents
+  bedrooms        Int
+  bathrooms       Decimal
+  sqft            Int?
+  lotSize         Decimal?
+  yearBuilt       Int?
+  propertyType    PropertyType
+  status          PropertyStatus @default(ACTIVE)
+  featured        Boolean  @default(false) // Featured on homepage
+  description     String?
+  features        String[]
+  images          String[] // Array of image URLs
+  virtualTourUrl  String?
+  lat             Decimal?
+  lng             Decimal?
+  neighborhood    String?
+  schoolDistrict  String?
+  hoaFees         Int?     // Monthly HOA fees in cents
+  taxRate         Decimal?
+  daysOnMarket    Int?
+  agentId         String?
+  listingDate     DateTime?
+  soldDate        DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum PropertyType {
+  SINGLE_FAMILY
+  CONDO
+  TOWNHOUSE
+  MULTI_FAMILY
+  LAND
+  COMMERCIAL
+  MOBILE_HOME
+}
+
+enum PropertyStatus {
+  ACTIVE
+  PENDING
+  SOLD
+  OFF_MARKET
+  COMING_SOON
+}
+
+// Testimonials for homepage
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  title       String?  // e.g., "Home Buyer", "Seller"
+  content     String
+  rating      Int      @default(5) // 1-5 stars
+  image       String?
+  location    String?  // e.g., "Jupiter, FL"
+  order       Int      @default(0)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Neighborhood/Area pages
+model Neighborhood {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String?
+  image       String?
+  avgPrice    Int?     // Average home price in cents
+  totalHomes  Int?
+  features    String[] // Array of neighborhood features
+  schools     Json?    // School information
+  amenities   Json?    // Local amenities
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
